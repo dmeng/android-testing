@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, The Android Open Source Project
+ * Copyright 2019, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 
 package com.example.android.testing.notes.data;
 
+import androidx.annotation.Nullable;
 import com.google.common.base.Objects;
-
-import android.support.annotation.Nullable;
 
 import java.util.UUID;
 
@@ -34,16 +33,26 @@ public final class Note {
     private final String mDescription;
     @Nullable
     private final String mImageUrl;
+    private boolean mIsArchived;
 
     public Note(@Nullable String title, @Nullable String description) {
-        this(title, description, null);
+        this(UUID.randomUUID().toString(), title, description, null, false);
+    }
+
+    public Note(@Nullable String title, @Nullable String description, boolean isArchived) {
+        this(UUID.randomUUID().toString(), title, description, null, isArchived);
     }
 
     public Note(@Nullable String title, @Nullable String description, @Nullable String imageUrl) {
-        mId = UUID.randomUUID().toString();
+        this(UUID.randomUUID().toString(), title, description, imageUrl, false);
+    }
+
+    public Note(String id, @Nullable String title, @Nullable String description, @Nullable String imageUrl, boolean isArchived) {
+        mId = id;
         mTitle = title;
         mDescription = description;
         mImageUrl = imageUrl;
+        mIsArchived = isArchived;
     }
 
     public String getId() {
@@ -63,6 +72,14 @@ public final class Note {
     @Nullable
     public String getImageUrl() {
         return mImageUrl;
+    }
+
+    public boolean isArchived() {
+        return mIsArchived;
+    }
+
+    public void setIsArchived(boolean isArchived) {
+        mIsArchived = isArchived;
     }
 
     public boolean isEmpty() {

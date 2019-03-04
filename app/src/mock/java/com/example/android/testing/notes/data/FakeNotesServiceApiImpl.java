@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, The Android Open Source Project
+ * Copyright 2019, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
 
 package com.example.android.testing.notes.data;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
+import androidx.collection.ArrayMap;
 import com.google.common.collect.Lists;
 
-import android.support.annotation.VisibleForTesting;
-import android.support.v4.util.ArrayMap;
-
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,6 +46,39 @@ public class FakeNotesServiceApiImpl implements NotesServiceApi {
     @Override
     public void saveNote(Note note) {
         NOTES_SERVICE_DATA.put(note.getId(), note);
+    }
+
+    @Override
+    public void archiveNote(@NonNull Note note) {
+        note.setIsArchived(true);
+        saveNote(note);
+    }
+
+    @Override
+    public void restoreNote(@NonNull Note note) {
+        note.setIsArchived(false);
+        saveNote(note);
+    }
+
+    @Override
+    public void deleteNote(@NonNull Note note) {
+        NOTES_SERVICE_DATA.remove(note.getId());
+    }
+
+    @Override
+    public void deleteAllNotes() {
+        NOTES_SERVICE_DATA.clear();
+    }
+
+    @Override
+    public void deleteArchivedNotes() {
+        List<String> idsToDelete = new ArrayList<>();
+        for (String id : NOTES_SERVICE_DATA.keySet()) {
+            if (NOTES_SERVICE_DATA.get(id).isArchived()) {
+                idsToDelete.add(id);
+            }
+        }
+        NOTES_SERVICE_DATA.removeAll(idsToDelete);
     }
 
     @VisibleForTesting

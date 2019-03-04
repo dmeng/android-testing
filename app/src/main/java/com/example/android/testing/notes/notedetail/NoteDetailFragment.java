@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright 2019, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,34 @@
 
 package com.example.android.testing.notes.notedetail;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
-import com.example.android.testing.notes.Injection;
-import com.example.android.testing.notes.R;
-import com.example.android.testing.notes.util.EspressoIdlingResource;
-
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+
+import com.example.android.testing.notes.Event;
+import com.example.android.testing.notes.R;
+import com.example.android.testing.notes.databinding.NoteDetailFragmentBinding;
+import com.example.android.testing.notes.util.EspressoIdlingResource;
+import com.example.android.testing.notes.util.SnackbarUtils;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+
+
 
 /**
  * Main UI for the note detail screen.
  */
-public class NoteDetailFragment extends Fragment implements NoteDetailContract.View {
-
+public class NoteDetailFragment extends Fragment {
     public static final String ARGUMENT_NOTE_ID = "NOTE_ID";
 
-    private NoteDetailContract.UserActionsListener mActionsListener;
-
-    private TextView mDetailTitle;
-
-    private TextView mDetailDescription;
-
-    private ImageView mDetailImage;
+    private NoteDetailViewModel mViewModel;
 
     public static NoteDetailFragment newInstance(String noteId) {
         Bundle arguments = new Bundle();
@@ -60,90 +56,88 @@ public class NoteDetailFragment extends Fragment implements NoteDetailContract.V
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mActionsListener = new NoteDetailPresenter(Injection.provideNotesRepository(),
-                this);
+
+        setupFab();
+
+        setupSnackbar();
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_detail, container, false);
-        mDetailTitle = (TextView) root.findViewById(R.id.note_detail_title);
-        mDetailDescription = (TextView) root.findViewById(R.id.note_detail_description);
-        mDetailImage = (ImageView) root.findViewById(R.id.note_detail_image);
-        return root;
+    private void setupSnackbar() {
+        mViewModel.getSnackbarMessage().observe(this, new Observer<Event<Integer>>() {
+            @Override
+            public void onChanged(Event<Integer> event) {
+                Integer msg = event.getContentIfNotHandled();
+                if (msg != null) {
+                    SnackbarUtils.showSnackbar(getView(), getString(msg));
+                }
+            }
+        });
+    }
+
+    private void setupFab() {
+        FloatingActionButton fab = getActivity().findViewById(R.id.fab_edit_note);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mViewModel.editNote();
+            }
+        });
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        String noteId = getArguments().getString(ARGUMENT_NOTE_ID);
-        mActionsListener.openNote(noteId);
+        mViewModel.start(getArguments().getString(ARGUMENT_NOTE_ID));
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.note_detail_fragment, container, false);
+
+        NoteDetailFragmentBinding viewDataBinding = NoteDetailFragmentBinding.bind(view);
+
+        mViewModel = NoteDetailActivity.obtainViewModel(getActivity());
+
+        viewDataBinding.setViewModel(mViewModel);
+        viewDataBinding.setLifecycleOwner(getActivity());
+
+        setHasOptionsMenu(true);
+
+        return view;
     }
 
     @Override
-    public void setProgressIndicator(boolean active) {
-        if (active) {
-            mDetailTitle.setText("");
-            mDetailDescription.setText(getString(R.string.loading));
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_archive:
+                mViewModel.archiveNote();
+                return true;
+            case R.id.menu_delete:
+                mViewModel.deleteNote();
+                return true;
+            case R.id.menu_restore:
+                mViewModel.restoreNote();
+                return true;
         }
+        return false;
     }
 
     @Override
-    public void hideDescription() {
-        mDetailDescription.setVisibility(View.GONE);
-    }
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.notedetail_fragment_menu, menu);
 
-    @Override
-    public void hideTitle() {
-        mDetailTitle.setVisibility(View.GONE);
-    }
+        if (mViewModel.getNote().getValue().isArchived()) {
+            MenuItem archive = menu.findItem(R.id.menu_archive);
+            archive.setVisible(false);
+            archive.setEnabled(false);
 
-    @Override
-    public void showDescription(String description) {
-        mDetailDescription.setVisibility(View.VISIBLE);
-        mDetailDescription.setText(description);
-    }
-
-    @Override
-    public void showTitle(String title) {
-        mDetailTitle.setVisibility(View.VISIBLE);
-        mDetailTitle.setText(title);
-    }
-
-    @Override
-    public void showImage(String imageUrl) {
-        // The image is loaded in a different thread so in order to UI-test this, an idling resource
-        // is used to specify when the app is idle.
-        EspressoIdlingResource.increment(); // App is busy until further notice.
-
-        mDetailImage.setVisibility(View.VISIBLE);
-
-        // This app uses Glide for image loading
-        Glide.with(this)
-                .load(imageUrl)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .centerCrop()
-                .into(new GlideDrawableImageViewTarget(mDetailImage) {
-                    @Override
-                    public void onResourceReady(GlideDrawable resource,
-                                                GlideAnimation<? super GlideDrawable> animation) {
-                        super.onResourceReady(resource, animation);
-                        EspressoIdlingResource.decrement(); // App is idle.
-                    }
-                });
-    }
-
-    @Override
-    public void hideImage() {
-        mDetailImage.setImageDrawable(null);
-        mDetailImage.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void showMissingNote() {
-        mDetailTitle.setText("");
-        mDetailDescription.setText(getString(R.string.no_data));
+            MenuItem restore = menu.findItem(R.id.menu_restore);
+            restore.setVisible(true);
+            restore.setEnabled(true);
+        }
     }
 }

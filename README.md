@@ -1,19 +1,22 @@
 # Android Testing Codelab
 
-This folder contains the source code for the Android testing codelab. It gives an introduction into testing on Android, including unit tests and UI tests. 
+This folder contains the source code for the Android testing codelab. It gives
+an introduction into testing on Android, including unit tests and UI tests.
 
 ### Getting Started
 
-Check out branch `master` or any of our step branches `step-1-5` to start and follow the instructions here: http://www.code-labs.io/codelabs/android-testing/
+Check out branch `master` or any of our step branches `step-1-5` to start and
+follow the instructions here: http://www.code-labs.io/codelabs/android-testing/
 
 
-Clone this repository, enter the top level directory and run <code>./gradlew tasks</code> to get an overview of all the tasks available for this project.
+Clone this repository, enter the top level directory and run
+<code>./gradlew tasks</code> to get an overview of all the tasks available for
+this project.
 
 ### License
 
-
 ```
-Copyright 2016 Google, Inc.
+Copyright 2019, Google, Inc.
 
 Licensed to the Apache Software Foundation (ASF) under one or more contributor
 license agreements. See the NOTICE file distributed with this work for

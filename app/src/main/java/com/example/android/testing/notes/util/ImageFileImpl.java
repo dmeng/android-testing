@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, The Android Open Source Project
+ * Copyright 2019, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package com.example.android.testing.notes.util;
 
 import android.net.Uri;
 import android.os.Environment;
-import android.support.annotation.VisibleForTesting;
 
+import androidx.annotation.VisibleForTesting;
 import java.io.File;
 import java.io.IOException;
 

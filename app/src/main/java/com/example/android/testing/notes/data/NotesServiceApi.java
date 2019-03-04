@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, The Android Open Source Project
+ * Copyright 2019, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.example.android.testing.notes.data;
 
+import androidx.annotation.NonNull;
 import java.util.List;
 
 /**
@@ -34,4 +35,14 @@ public interface NotesServiceApi {
     void getNote(String noteId, NotesServiceCallback<Note> callback);
 
     void saveNote(Note note);
+
+    void archiveNote(@NonNull Note note);
+
+    void restoreNote(@NonNull Note note);
+
+    void deleteNote(@NonNull Note note);
+
+    void deleteAllNotes();
+
+    void deleteArchivedNotes();
 }

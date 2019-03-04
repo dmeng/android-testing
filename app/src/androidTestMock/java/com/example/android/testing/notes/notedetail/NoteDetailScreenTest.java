@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, The Android Open Source Project
+ * Copyright 2019, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,35 @@
 
 package com.example.android.testing.notes.notedetail;
 
+import static org.hamcrest.core.IsNot.not;
+
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+
+import android.app.Activity;
+import android.content.Intent;
+
+import com.example.android.testing.notes.Injection;
 import com.example.android.testing.notes.R;
-import com.example.android.testing.notes.data.FakeNotesServiceApiImpl;
 import com.example.android.testing.notes.data.Note;
+import com.example.android.testing.notes.data.NotesRepository;
+import com.example.android.testing.notes.util.EspressoIdlingResource;
+import com.example.android.testing.notes.util.TestUtils;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.support.test.espresso.Espresso;
-import android.support.test.filters.LargeTest;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
-
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static com.example.android.testing.notes.custom.matcher.ImageViewHasDrawableMatcher.hasDrawable;
-import static org.hamcrest.Matchers.allOf;
+import androidx.test.espresso.IdlingRegistry;
+import androidx.test.filters.LargeTest;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 
 /**
  * Tests for the notes screen, the main screen which contains a list of all notes.
@@ -52,12 +57,10 @@ public class NoteDetailScreenTest {
 
     private static String NOTE_DESCRIPTION = "Rocks";
 
-    private static String NOTE_IMAGE = "file:///android_asset/atsl-logo.png";
-
     /**
      * {@link Note} stub that is added to the fake service API layer.
      */
-    private static Note NOTE = new Note(NOTE_TITLE, NOTE_DESCRIPTION, NOTE_IMAGE);
+    private static Note ACTIVE_NOTE = new Note(NOTE_TITLE, NOTE_DESCRIPTION, false);
 
     /**
      * {@link ActivityTestRule} is a JUnit {@link Rule @Rule} to launch your activity under test.
@@ -77,6 +80,29 @@ public class NoteDetailScreenTest {
                     false /* Lazily launch activity */);
 
     /**
+     * Prepare your test fixture for this test. In this case we register an IdlingResources with
+     * Espresso. IdlingResource resource is a great way to tell Espresso when your app is in an
+     * idle state. This helps Espresso to synchronize your test actions, which makes tests
+     * significantly more reliable.
+     */
+    @Before
+    public void registerIdlingResource() {
+        IdlingRegistry.getInstance().register(EspressoIdlingResource.getIdlingResource());
+    }
+
+    /**
+     * Unregister your Idling Resource so it can be garbage collected and does not leak any memory.
+     */
+    @After
+    public void unregisterIdlingResource() {
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResource.getIdlingResource());
+    }
+
+    private void loadActiveNote() {
+        startActivityWithWithStubbedNote(ACTIVE_NOTE);
+    }
+
+    /**
      * Setup your test fixture with a fake note id. The {@link NoteDetailActivity} is started with
      * a particular note id, which is then loaded from the service API.
      *
@@ -85,45 +111,43 @@ public class NoteDetailScreenTest {
      * the service API. This is a great way to make your tests more reliable and faster at the same
      * time, since they are isolated from any outside dependencies.
      */
-    @Before
-    public void intentWithStubbedNoteId() {
+    private void startActivityWithWithStubbedNote(Note note) {
         // Add a note stub to the fake service api layer.
-        FakeNotesServiceApiImpl.addNotes(NOTE);
+        NotesRepository repository = Injection.provideNotesRepository();
+        repository.deleteAllNotes();
+        repository.saveNote(note);
 
         // Lazily start the Activity from the ActivityTestRule this time to inject the start Intent
         Intent startIntent = new Intent();
-        startIntent.putExtra(NoteDetailActivity.EXTRA_NOTE_ID, NOTE.getId());
+        startIntent.putExtra(NoteDetailActivity.EXTRA_NOTE_ID, note.getId());
         mNoteDetailActivityTestRule.launchActivity(startIntent);
-
-        registerIdlingResource();
     }
 
     @Test
-    public void noteDetails_DisplayedInUi() throws Exception {
-        // Check that the note title, description and image are displayed
+    public void activeNoteDetails_DisplayedInUi() throws Exception {
+        loadActiveNote();
+
+        // Check that the note title and description are displayed
         onView(withId(R.id.note_detail_title)).check(matches(withText(NOTE_TITLE)));
         onView(withId(R.id.note_detail_description)).check(matches(withText(NOTE_DESCRIPTION)));
-        onView(withId(R.id.note_detail_image)).check(matches(allOf(
-                hasDrawable(),
-                isDisplayed())));
     }
 
-    /**
-     * Unregister your Idling Resource so it can be garbage collected and does not leak any memory.
-     */
-    @After
-    public void unregisterIdlingResource() {
-        Espresso.unregisterIdlingResources(
-                mNoteDetailActivityTestRule.getActivity().getCountingIdlingResource());
+    @Test
+    @Ignore("Need to figure out what's going on with the overflow menu")
+    public void orientationChange_menuAndNotePersist() {
+        loadActiveNote();
+
+        // Check delete menu item is displayed and is unique
+        onView(withId(R.id.menu_delete)).check(matches(isDisplayed()));
+
+        TestUtils.rotateOrientation(mNoteDetailActivityTestRule.getActivity());
+
+        // Check that the note is shown
+        onView(withId(R.id.note_detail_title)).check(matches(withText(NOTE_TITLE)));
+        onView(withId(R.id.note_detail_description)).check(matches(withText(NOTE_DESCRIPTION)));
+
+        // Check delete menu item is displayed and is unique
+        onView(withId(R.id.menu_delete)).check(matches(isDisplayed()));
     }
 
-    /**
-     * Convenience method to register an IdlingResources with Espresso. IdlingResource resource is
-     * a great way to tell Espresso when your app is in an idle state. This helps Espresso to
-     * synchronize your test actions, which makes tests significantly more reliable.
-     */
-    private void registerIdlingResource() {
-        Espresso.registerIdlingResources(
-                mNoteDetailActivityTestRule.getActivity().getCountingIdlingResource());
-    }
 }

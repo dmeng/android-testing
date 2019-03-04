@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, The Android Open Source Project
+ * Copyright 2019, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +16,33 @@
 
 package com.example.android.testing.notes.notes;
 
+import android.view.Gravity;
+
 import com.example.android.testing.notes.R;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.LargeTest;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.widget.DrawerLayout;
-import android.view.Gravity;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.test.espresso.NoActivityResumedException;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
+import androidx.test.rule.ActivityTestRule;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.contrib.DrawerActions.open;
-import static android.support.test.espresso.contrib.DrawerMatchers.isClosed;
-import static android.support.test.espresso.contrib.DrawerMatchers.isOpen;
-import static android.support.test.espresso.contrib.NavigationViewActions.navigateTo;
-import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.pressBack;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.contrib.DrawerActions.open;
+import static androidx.test.espresso.contrib.DrawerMatchers.isClosed;
+import static androidx.test.espresso.contrib.DrawerMatchers.isOpen;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static com.example.android.testing.notes.custom.actions.NavigationViewActions.navigateTo;
+import static com.example.android.testing.notes.util.TestUtils.getToolbarNavigationContentDescription;
+import static junit.framework.Assert.fail;
 
 /**
  * Tests for the {@link DrawerLayout} layout component in {@link NotesActivity} which manages
@@ -61,35 +65,96 @@ public class AppNavigationTest {
 
     @Test
     public void clickOnStatisticsNavigationItem_ShowsStatisticsScreen() {
-        // Open Drawer to click on navigation.
-        onView(withId(R.id.drawer_layout))
-                .check(matches(isClosed(Gravity.LEFT))) // Left Drawer should be closed.
-                .perform(open()); // Open Drawer
-
-        // Start statistics screen.
-        onView(withId(R.id.nav_view))
-                .perform(navigateTo(R.id.statistics_navigation_menu_item));
+        openStatisticsScreen();
 
         // Check that statistics Activity was opened.
-        String expectedNoStatisticsText = InstrumentationRegistry.getTargetContext()
-                .getString(R.string.no_statistics_available);
-        onView(withId(R.id.no_statistics)).check(matches(withText(expectedNoStatisticsText)));
+        onView(withId(R.id.statistics)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void clickOnListNavigationItem_ShowsListScreen() {
+        openStatisticsScreen();
+
+        openNotesScreen();
+
+        // Check that Notes Activity was opened.
+        onView(withId(R.id.notesContainer)).check(matches(isDisplayed()));
     }
 
     @Test
     public void clickOnAndroidHomeIcon_OpensNavigation() {
         // Check that left drawer is closed at startup
         onView(withId(R.id.drawer_layout))
-                .check(matches(isClosed(Gravity.LEFT))); // Left Drawer should be closed.
+                .check(matches(isClosed(Gravity.START))); // Left Drawer should be closed.
 
         // Open Drawer
-        String navigateUpDesc = mActivityTestRule.getActivity()
-                .getString(android.support.v7.appcompat.R.string.abc_action_bar_up_description);
-        onView(withContentDescription(navigateUpDesc)).perform(click());
+        onView(withContentDescription(getToolbarNavigationContentDescription(
+                mActivityTestRule.getActivity(), R.id.toolbar))).perform(click());
 
         // Check if drawer is open
         onView(withId(R.id.drawer_layout))
-                .check(matches(isOpen(Gravity.LEFT))); // Left drawer is open open.
+                .check(matches(isOpen(Gravity.START))); // Left drawer is open open.
     }
 
+    @Test
+    public void onStatisticsScreen_backNavigatesToNotes() {
+        openStatisticsScreen();
+
+        // Press back to go back to the notes list
+        pressBack();
+
+        // Check that Notes Activity was restored.
+        onView(withId(R.id.notesContainer)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void backFromNotesScreen_ExitsApp() {
+        // From the notes screen, press back should exit the app.
+        assertPressingBackExitsApp();
+    }
+
+    @Test
+    public void backFromNotesScreenAfterStats_ExitsApp() {
+        // This test checks that NotesActivity is a parent of StatisticsActivity
+
+        // Open the stats screen
+        openStatisticsScreen();
+
+        // Open the notes screen to restore the note
+        openNotesScreen();
+
+        // Pressing back should exit app
+        assertPressingBackExitsApp();
+    }
+
+    private void assertPressingBackExitsApp() {
+        try {
+            pressBack();
+            fail("Should kill the app and throw an exception");
+        } catch (NoActivityResumedException e) {
+            // Test OK
+        }
+    }
+
+    private void openNotesScreen() {
+        // Open Drawer to click on navigation item.
+        onView(withId(R.id.drawer_layout))
+                .check(matches(isClosed(Gravity.START))) // Left Drawer should be closed.
+                .perform(open()); // Open Drawer
+
+        // Start notes list screen.
+        onView(withId(R.id.nav_view))
+                .perform(navigateTo(R.id.list_navigation_menu_item));
+    }
+
+    private void openStatisticsScreen() {
+        // Open Drawer to click on navigation item.
+        onView(withId(R.id.drawer_layout))
+                .check(matches(isClosed(Gravity.START))) // Left Drawer should be closed.
+                .perform(open()); // Open Drawer
+
+        // Start statistics screen.
+        onView(withId(R.id.nav_view))
+                .perform(navigateTo(R.id.statistics_navigation_menu_item));
+    }
 }
