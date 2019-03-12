@@ -19,8 +19,10 @@ package com.example.android.testing.notes.addeditnote;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
+import androidx.navigation.Navigation;
 import com.example.android.testing.notes.Event;
 import com.example.android.testing.notes.R;
 import com.example.android.testing.notes.databinding.AddEditNoteFragmentBinding;
@@ -37,7 +39,7 @@ import androidx.lifecycle.Observer;
  * Main UI for the add note screen. Users can enter a note title and description.
  */
 public class AddEditNoteFragment extends Fragment {
-    // public static final String ARGUMENT_EDIT_NOTE_ID = "EDIT_NOTE_ID";
+    public static final String ARGUMENT_EDIT_NOTE_ID = "EDIT_NOTE_ID";
     //
     // private AddEditNoteViewModel mViewModel;
     //
@@ -73,25 +75,43 @@ public class AddEditNoteFragment extends Fragment {
     //     }
     // }
     //
-    // @Nullable
-    // @Override
-    // public View onCreateView(LayoutInflater inflater, ViewGroup container,
-    //         Bundle savedInstanceState) {
-    //     final View root = inflater.inflate(R.layout.add_edit_note_fragment, container, false);
-    //     if (mAddEditNoteFragmentBinding == null) {
-    //         mAddEditNoteFragmentBinding = AddEditNoteFragmentBinding.bind(root);
-    //     }
-    //
-    //     mViewModel = AddEditNoteActivity.obtainViewModel(getActivity());
-    //
-    //     mAddEditNoteFragmentBinding.setViewModel(mViewModel);
-    //     mAddEditNoteFragmentBinding.setLifecycleOwner(getActivity());
-    //
-    //     setHasOptionsMenu(true);
-    //     setRetainInstance(false);
-    //
-    //     return mAddEditNoteFragmentBinding.getRoot();
-    // }
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+      AddEditNoteFragmentBinding binding = AddEditNoteFragmentBinding.inflate(inflater, container, false);
+      binding.setLifecycleOwner(getActivity());
+
+      View v = binding.getRoot();
+      FloatingActionButton fab = v.findViewById(R.id.fab_save_note);
+      fab.setImageResource(R.drawable.ic_done);
+      fab.setOnClickListener(new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          Navigation.findNavController(v).navigate(R.id.save_and_return);
+        }
+      });
+
+      setupActionBar();
+      setHasOptionsMenu(true);
+      setRetainInstance(false);
+      return v;
+
+        // final View root = inflater.inflate(R.layout.add_edit_note_fragment, container, false);
+        // if (mAddEditNoteFragmentBinding == null) {
+        //     mAddEditNoteFragmentBinding = AddEditNoteFragmentBinding.bind(root);
+        // }
+        //
+        // mViewModel = AddEditNoteActivity.obtainViewModel(getActivity());
+        //
+        // mAddEditNoteFragmentBinding.setViewModel(mViewModel);
+        // mAddEditNoteFragmentBinding.setLifecycleOwner(getActivity());
+        //
+        // setHasOptionsMenu(true);
+        // setRetainInstance(false);
+        //
+        // return mAddEditNoteFragmentBinding.getRoot();
+    }
     //
     // private void setupSnackbar() {
     //     mViewModel.getSnackbarMessage().observe(this, new Observer<Event<Integer>>() {
@@ -116,15 +136,17 @@ public class AddEditNoteFragment extends Fragment {
     //     });
     // }
     //
-    // private void setupActionBar() {
-    //     ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-    //     if (actionBar == null) {
-    //         return;
-    //     }
-    //     if (getArguments() != null && getArguments().get(ARGUMENT_EDIT_NOTE_ID) != null) {
-    //         actionBar.setTitle(R.string.edit_note);
-    //     } else {
-    //         actionBar.setTitle(R.string.add_note);
-    //     }
-    // }
+    private void setupActionBar() {
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        if (actionBar == null) {
+            return;
+        }
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowHomeEnabled(true);
+        if (getArguments() != null && getArguments().get(ARGUMENT_EDIT_NOTE_ID) != null) {
+            actionBar.setTitle(R.string.edit_note);
+        } else {
+            actionBar.setTitle(R.string.add_note);
+        }
+    }
 }
