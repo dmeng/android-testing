@@ -22,6 +22,9 @@
         <action
             android:id="@+id/add_edit_note_action"
             app:destination="@id/add_edit_note"/>
+        <action
+            android:id="@+id/main_to_statistics_page"
+            app:destination="@id/view_stats"/>
     </fragment>
     <fragment
         android:id="@+id/note_details"

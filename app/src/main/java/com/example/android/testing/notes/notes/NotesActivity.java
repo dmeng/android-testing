@@ -16,19 +16,13 @@
 
 package com.example.android.testing.notes.notes;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.FragmentFactory;
-import androidx.fragment.app.FragmentManager;
-import com.example.android.testing.notes.ArgsFragmentFactory;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProviders;
 import com.example.android.testing.notes.R;
 import com.example.android.testing.notes.ViewModelFactory;
-import com.google.android.material.navigation.NavigationView;
 
 public class NotesActivity extends AppCompatActivity {
 
@@ -78,6 +72,11 @@ public class NotesActivity extends AppCompatActivity {
     //     });
     // }
     //
+    public static <T extends ViewModel> T obtainViewModel(FragmentActivity activity, Class<T> viewModelClass) {
+        ViewModelFactory factory = ViewModelFactory.getInstance(activity.getApplication());
+        return ViewModelProviders.of(activity, factory).get(viewModelClass);
+    }
+
     // public static NotesViewModel obtainViewModel(FragmentActivity activity) {
     //     // Use a Factory to inject dependencies into the ViewModel
     //     ViewModelFactory factory = ViewModelFactory.getInstance(activity.getApplication());
@@ -87,7 +86,7 @@ public class NotesActivity extends AppCompatActivity {
     //
     //     return viewModel;
     // }
-    //
+
     // private void setupViewFragment() {
     //     NotesFragment notesFragment =
     //             (NotesFragment) getSupportFragmentManager().findFragmentById(R.id.contentFrame);
@@ -106,16 +105,16 @@ public class NotesActivity extends AppCompatActivity {
     //     ab.setHomeAsUpIndicator(R.drawable.ic_menu);
     //     ab.setDisplayHomeAsUpEnabled(true);
     // }
-
-    public void setupNavigationDrawer(View v) {
-        final DrawerLayout drawerLayout = v.findViewById(R.id.drawer_layout);
-        drawerLayout.setStatusBarBackground(R.color.colorPrimaryDark);
-        NavigationView navigationView = (NavigationView) v.findViewById(R.id.nav_view);
-        if (navigationView != null) {
-            setupDrawerContent(navigationView);
-        }
-    }
-
+    //
+    // public void setupNavigationDrawer(View v) {
+    //     final DrawerLayout drawerLayout = v.findViewById(R.id.drawer_layout);
+    //     drawerLayout.setStatusBarBackground(R.color.colorPrimaryDark);
+    //     NavigationView navigationView = (NavigationView) v.findViewById(R.id.nav_view);
+    //     if (navigationView != null) {
+    //         setupDrawerContent(navigationView);
+    //     }
+    // }
+    //
     // @Override
     // public boolean onOptionsItemSelected(MenuItem item) {
     //     final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
@@ -127,33 +126,33 @@ public class NotesActivity extends AppCompatActivity {
     //     }
     //     return super.onOptionsItemSelected(item);
     // }
-
-    private void setupDrawerContent(NavigationView navigationView) {
-        final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        switch (menuItem.getItemId()) {
-                            case R.id.list_navigation_menu_item:
-                                // Do nothing, we're already on that screen
-                                break;
-                            case R.id.statistics_navigation_menu_item:
-                                // Intent intent =
-                                //         new Intent(NotesActivity.this, StatisticsActivity.class);
-                                // startActivity(intent);
-                                break;
-                            default:
-                                break;
-                        }
-                        // Close the navigation drawer when an item is selected.
-                        menuItem.setChecked(true);
-                        drawerLayout.closeDrawers();
-                        return true;
-                    }
-                });
-    }
-
+    //
+    // private void setupDrawerContent(NavigationView navigationView) {
+    //     final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+    //     navigationView.setNavigationItemSelectedListener(
+    //             new NavigationView.OnNavigationItemSelectedListener() {
+    //                 @Override
+    //                 public boolean onNavigationItemSelected(MenuItem menuItem) {
+    //                     switch (menuItem.getItemId()) {
+    //                         case R.id.list_navigation_menu_item:
+    //                             // Do nothing, we're already on that screen
+    //                             break;
+    //                         case R.id.statistics_navigation_menu_item:
+    //                             // Intent intent =
+    //                             //         new Intent(NotesActivity.this, StatisticsActivity.class);
+    //                             // startActivity(intent);
+    //                             break;
+    //                         default:
+    //                             break;
+    //                     }
+    //                     // Close the navigation drawer when an item is selected.
+    //                     menuItem.setChecked(true);
+    //                     drawerLayout.closeDrawers();
+    //                     return true;
+    //                 }
+    //             });
+    // }
+    //
     // @Override
     // public void onActivityResult(int requestCode, int resultCode, Intent data) {
     //     mViewModel.handleActivityResult(requestCode, resultCode);

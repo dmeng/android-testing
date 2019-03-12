@@ -17,7 +17,6 @@
 package com.example.android.testing.notes.notes;
 
 import android.os.Bundle;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,21 +28,20 @@ import android.view.ViewGroup;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.Navigation;
-import com.example.android.testing.notes.Event;
 import com.example.android.testing.notes.R;
 import com.example.android.testing.notes.ScrollChildSwipeRefreshLayout;
 import com.example.android.testing.notes.data.Note;
 import com.example.android.testing.notes.databinding.NotesFragmentBinding;
-import com.example.android.testing.notes.util.SnackbarUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import com.google.android.material.navigation.NavigationView;
 import java.util.ArrayList;
 
-import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -52,20 +50,16 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public class NotesFragment extends Fragment {
 
-    private final NotesViewModel viewModel;
-
-    public NotesFragment() {
-        this(null);
-    }
-
-    public NotesFragment(NotesViewModel viewModel) {
-        this.viewModel = viewModel;
-    }
+    private DrawerLayout drawerLayout;
+    private NotesAdapter notesAdapter;
+    private NotesFragmentBinding binding;
+    private NotesViewModel viewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        NotesFragmentBinding binding = NotesFragmentBinding.inflate(inflater, container, false);
+        binding = NotesFragmentBinding.inflate(inflater, container, false);
+        viewModel = NotesActivity.obtainViewModel(getActivity(), NotesViewModel.class);
         binding.setLifecycleOwner(getActivity());
         binding.setViewModel(viewModel);
 
@@ -78,57 +72,71 @@ public class NotesFragment extends Fragment {
                 Navigation.findNavController(v).navigate(R.id.add_edit_note_action);
             }
         });
-        setupToolbar((NotesActivity) getActivity());
+
+        drawerLayout = v.findViewById(R.id.drawer_layout);
+        setupNavigationDrawer(v, drawerLayout);
+        setupListAdapter();
+        setupRefreshLayout();
+        setupToolbar(v, (NotesActivity) getActivity());
         setHasOptionsMenu(true);
 
         return v;
     }
 
-    private void setupToolbar(NotesActivity activity) {
-        Toolbar toolbar = activity.findViewById(R.id.toolbar);
+    protected void setupToolbar(View v, NotesActivity activity) {
+        Toolbar toolbar = v.findViewById(R.id.toolbar);
         activity.setSupportActionBar(toolbar);
         ActionBar ab = activity.getSupportActionBar();
         ab.setHomeAsUpIndicator(R.drawable.ic_menu);
         ab.setDisplayHomeAsUpEnabled(true);
     }
-    // private NotesViewModel mNotesViewModel;
-    //
-    // private NotesFragmentBinding mNotesFragmentBinding;
-    //
-    // private NotesAdapter mListAdapter;
-    //
-    // public NotesFragment() {
-    //     // Requires empty public constructor
-    // }
-    //
-    // public static NotesFragment newInstance() {
-    //     return new NotesFragment();
-    // }
-    //
-    // @Override
-    // public void onResume() {
-    //     super.onResume();
-    //     mNotesViewModel.start();
-    // }
-    //
-    // @Nullable
-    // @Override
-    // public View onCreateView(LayoutInflater inflater, ViewGroup container,
-    //         Bundle savedInstanceState) {
-    //     mNotesFragmentBinding = NotesFragmentBinding.inflate(inflater, container, false);
-    //
-    //     mNotesViewModel = NotesActivity.obtainViewModel(getActivity());
-    //
-    //     mNotesFragmentBinding.setViewModel(mNotesViewModel);
-    //     mNotesFragmentBinding.setLifecycleOwner(getActivity());
-    //
-    //     setHasOptionsMenu(true);
-    //
-    //     return mNotesFragmentBinding.getRoot();
-    // }
+
+    public void setupNavigationDrawer(View v, DrawerLayout drawerLayout) {
+        drawerLayout.setStatusBarBackground(R.color.colorPrimaryDark);
+        NavigationView navigationView = v.findViewById(R.id.nav_view);
+        if (navigationView != null) {
+            setupDrawerContent(navigationView, v);
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // Open the navigation drawer when the home icon is selected from the toolbar.
+                drawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setupDrawerContent(NavigationView navigationView, final View v) {
+        navigationView.setNavigationItemSelectedListener(
+            new NavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(MenuItem menuItem) {
+                    switch (menuItem.getItemId()) {
+                        case R.id.list_navigation_menu_item:
+                            // Do nothing, we're already on that screen
+                            break;
+                        case R.id.statistics_navigation_menu_item:
+                            Navigation.findNavController(v).navigate(R.id.main_to_statistics_page);
+                            break;
+                        default:
+                            break;
+                    }
+                    // Close the navigation drawer when an item is selected.
+                    menuItem.setChecked(true);
+                    drawerLayout.closeDrawers();
+                    return true;
+                }
+            });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        viewModel.start();
     }
 
     @Override
@@ -136,110 +144,73 @@ public class NotesFragment extends Fragment {
         inflater.inflate(R.menu.notes_fragment_menu, menu);
         final MenuItem showArchive = menu.findItem(R.id.menu_show_archive);
         final MenuItem showActive = menu.findItem(R.id.menu_show_active);
-        // showArchive.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-        //     @Override
-        //     public boolean onMenuItemClick(MenuItem item) {
-        //         item.setEnabled(false);
-        //         item.setVisible(false);
-        //         showActive.setEnabled(true);
-        //         showActive.setVisible(true);
-        //         mNotesViewModel.setShowArchived(true);
-        //         mNotesViewModel.loadNotes(true);
-        //         return true;
-        //     }
-        // });
-        // showActive.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-        //     @Override
-        //     public boolean onMenuItemClick(MenuItem item) {
-        //         item.setEnabled(false);
-        //         item.setVisible(false);
-        //         showArchive.setEnabled(true);
-        //         showArchive.setVisible(true);
-        //         mNotesViewModel.setShowArchived(false);
-        //         mNotesViewModel.loadNotes(true);
-        //         return true;
-        //     }
-        // });
-        //
-        // MenuItem clearArchived = menu.findItem(R.id.menu_clear_archived);
-        // clearArchived.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-        //     @Override
-        //     public boolean onMenuItemClick(MenuItem item) {
-        //         mNotesViewModel.deleteArchivedNotes();
-        //         mNotesViewModel.loadNotes(true);
-        //         return true;
-        //     }
-        // });
-        //
-        // MenuItem refresh = menu.findItem(R.id.menu_refresh);
-        // refresh.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-        //     @Override
-        //     public boolean onMenuItemClick(MenuItem item) {
-        //         mNotesViewModel.loadNotes(true);
-        //         return true;
-        //     }
-        // });
+        showArchive.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                item.setEnabled(false);
+                item.setVisible(false);
+                showActive.setEnabled(true);
+                showActive.setVisible(true);
+                viewModel.setShowArchived(true);
+                viewModel.loadNotes(true);
+                return true;
+            }
+        });
+        showActive.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                item.setEnabled(false);
+                item.setVisible(false);
+                showArchive.setEnabled(true);
+                showArchive.setVisible(true);
+                viewModel.setShowArchived(false);
+                viewModel.loadNotes(true);
+                return true;
+            }
+        });
+
+        MenuItem clearArchived = menu.findItem(R.id.menu_clear_archived);
+        clearArchived.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                viewModel.deleteArchivedNotes();
+                viewModel.loadNotes(true);
+                return true;
+            }
+        });
+
+        MenuItem refresh = menu.findItem(R.id.menu_refresh);
+        refresh.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                viewModel.loadNotes(true);
+                return true;
+            }
+        });
     }
 
-    // @Override
-    // public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-    //     super.onActivityCreated(savedInstanceState);
-    //
-    //     setupSnackbar();
-    //
-    //     setupFab();
-    //
-    //     setupListAdapter();
-    //
-    //     setupRefreshLayout();
-    // }
-    //
-    // private void setupSnackbar() {
-    //     mNotesViewModel.getSnackbarMessage().observe(this, new Observer<Event<Integer>>() {
-    //         @Override
-    //         public void onChanged(Event<Integer> event) {
-    //             Integer msg = event.getContentIfNotHandled();
-    //             if (msg != null) {
-    //                 SnackbarUtils.showSnackbar(getView(), getString(msg));
-    //             }
-    //         }
-    //     });
-    // }
-    //
-    // private void setupFab() {
-    //     FloatingActionButton fab = getActivity().findViewById(R.id.fab_add_note);
-    //
-    //     fab.setImageResource(R.drawable.ic_add);
-    //     fab.setOnClickListener(new View.OnClickListener() {
-    //         @Override
-    //         public void onClick(View v) {
-    //             mNotesViewModel.addNewNote();
-    //         }
-    //     });
-    // }
-    //
-    // private void setupListAdapter() {
-    //     RecyclerView recyclerView = mNotesFragmentBinding.notesList;
-    //
-    //     mListAdapter = new NotesAdapter(
-    //             new ArrayList<Note>(0),
-    //             mNotesViewModel,
-    //             getActivity()
-    //     );
-    //     recyclerView.setAdapter(mListAdapter);
-    //     recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-    // }
-    //
-    // private void setupRefreshLayout() {
-    //     RecyclerView recyclerView =  mNotesFragmentBinding.notesList;
-    //     final ScrollChildSwipeRefreshLayout swipeRefreshLayout = mNotesFragmentBinding.refreshLayout;
-    //     swipeRefreshLayout.setColorSchemeColors(
-    //             ContextCompat.getColor(getActivity(), R.color.colorPrimary),
-    //             ContextCompat.getColor(getActivity(), R.color.colorAccent),
-    //             ContextCompat.getColor(getActivity(), R.color.colorPrimaryDark)
-    //     );
-    //     // Set the scrolling view in the custom SwipeRefreshLayout.
-    //     swipeRefreshLayout.setScrollUpChild(recyclerView);
-    // }
+    private void setupListAdapter() {
+        RecyclerView recyclerView = binding.notesList;
+
+        notesAdapter = new NotesAdapter(
+                new ArrayList<Note>(0),
+            viewModel,
+                getActivity()
+        );
+        recyclerView.setAdapter(notesAdapter);
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+    }
+
+    private void setupRefreshLayout() {
+        RecyclerView recyclerView =  binding.notesList;
+        final ScrollChildSwipeRefreshLayout swipeRefreshLayout = binding.refreshLayout;
+        swipeRefreshLayout.setColorSchemeColors(
+                ContextCompat.getColor(getActivity(), R.color.colorPrimary),
+                ContextCompat.getColor(getActivity(), R.color.colorAccent),
+                ContextCompat.getColor(getActivity(), R.color.colorPrimaryDark)
+        );
+        // Set the scrolling view in the custom SwipeRefreshLayout.
+        swipeRefreshLayout.setScrollUpChild(recyclerView);
+    }
 
 }

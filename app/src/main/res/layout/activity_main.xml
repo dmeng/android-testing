@@ -14,81 +14,20 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/background_light"
+    tools:context="com.example.android.testing.notes.notes.NotesActivity">
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-  <data>
-
-    <import type="android.view.View" />
-
-    <import type="androidx.core.content.ContextCompat" />
-
-    <variable
-        name="view_model"
-        type="com.example.android.testing.notes.notes.NotesViewModel" />
-
-  </data>
-
-  <androidx.drawerlayout.widget.DrawerLayout
-      xmlns:tools="http://schemas.android.com/tools"
-      android:id="@+id/drawer_layout"
+  <fragment
+      android:id="@+id/nav_host_fragment"
+      android:name="androidx.navigation.fragment.NavHostFragment"
       android:layout_width="match_parent"
-      android:layout_height="match_parent">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-      <com.google.android.material.appbar.AppBarLayout
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
-            android:minHeight="?attr/actionBarSize"
-            android:theme="@style/Toolbar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-      </com.google.android.material.appbar.AppBarLayout>
-
-      <fragment
-          android:id="@+id/nav_host_fragment"
-          android:name="androidx.navigation.fragment.NavHostFragment"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          app:defaultNavHost="true"
-          app:navGraph="@navigation/navigation"/>
-    </LinearLayout>
-
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header"
-        app:menu="@menu/drawer_actions" />
-  </androidx.drawerlayout.widget.DrawerLayout>
-</layout>
-
-<!--<FrameLayout-->
-    <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
-    <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
-    <!--xmlns:tools="http://schemas.android.com/tools"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:background="@android:color/background_light"-->
-    <!--tools:context="com.example.android.testing.notes.notes.NotesActivity">-->
-
-  <!--<fragment-->
-      <!--android:id="@+id/nav_host_fragment"-->
-      <!--android:name="androidx.navigation.fragment.NavHostFragment"-->
-      <!--android:layout_width="match_parent"-->
-      <!--android:layout_height="match_parent"-->
-      <!--app:defaultNavHost="true"-->
-      <!--app:navGraph="@navigation/navigation"/>-->
-<!--</FrameLayout>-->
+      android:layout_height="match_parent"
+      app:defaultNavHost="true"
+      app:navGraph="@navigation/navigation"/>
+</FrameLayout>
