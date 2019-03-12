@@ -141,6 +141,7 @@ public class AddEditNoteFragment extends Fragment {
         if (actionBar == null) {
             return;
         }
+        actionBar.setHomeAsUpIndicator(null);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);
         if (getArguments() != null && getArguments().get(ARGUMENT_EDIT_NOTE_ID) != null) {
