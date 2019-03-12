@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@+id/notes">
+
+    <fragment
+        android:id="@+id/add_edit_note"
+        android:name="com.example.android.testing.notes.addeditnote.AddEditNoteFragment"
+        android:label="add_edit_note_fragment"
+        tools:layout="@layout/add_edit_note_fragment">
+        <action
+            android:id="@+id/save_and_return"
+            app:destination="@id/notes"/>
+    </fragment>
+    <fragment
+        android:id="@+id/notes"
+        android:name="com.example.android.testing.notes.notes.NotesFragment"
+        android:label="notes_fragment"
+        tools:layout="@layout/notes_fragment">
+        <action
+            android:id="@+id/add_edit_note_action"
+            app:destination="@id/add_edit_note"/>
+    </fragment>
+    <fragment
+        android:id="@+id/note_details"
+        android:name="com.example.android.testing.notes.notedetail.NoteDetailFragment"
+        android:label="note_detail_fragment"
+        tools:layout="@layout/note_detail_fragment">
+    </fragment>
+    <fragment
+        android:id="@+id/view_stats"
+        android:name="com.example.android.testing.notes.statistics.StatisticsFragment"
+        android:label="statistics_fragment"
+        tools:layout="@layout/statistics_fragment">
+        <action
+          android:id="@+id/statistics_return_to_main"
+          app:destination="@id/notes"/>
+    </fragment>
+</navigation>

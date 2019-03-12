@@ -37,22 +37,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:exported="false"
-            android:name=".notedetail.NoteDetailActivity" />
-        <activity
-            android:exported="false"
-            android:name=".addeditnote.AddEditNoteActivity" />
-        <activity
-            android:exported="false"
-            android:name=".statistics.StatisticsActivity"
-            android:parentActivityName=".notes.NotesActivity"
-            tools:ignore="UnusedAttribute">
+        <!--<activity-->
+            <!--android:exported="false"-->
+            <!--android:name=".notedetail.NoteDetailActivity" />-->
+        <!--<activity-->
+            <!--android:exported="false"-->
+            <!--android:name=".addeditnote.AddEditNoteActivity" />-->
+        <!--<activity-->
+            <!--android:exported="false"-->
+            <!--android:name=".statistics.StatisticsActivity"-->
+            <!--android:parentActivityName=".notes.NotesActivity"-->
+            <!--tools:ignore="UnusedAttribute">-->
         <!-- Parent activity meta-data to support 4.0 and lower -->
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value=".notes.NotesActivity" />
-      </activity>
+        <!--<meta-data-->
+            <!--android:name="android.support.PARENT_ACTIVITY"-->
+            <!--android:value=".notes.NotesActivity" />-->
+      <!--</activity>-->
     </application>
 
 </manifest>
