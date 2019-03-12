@@ -126,6 +126,10 @@ public class NotesFragment extends Fragment {
     //
     //     return mNotesFragmentBinding.getRoot();
     // }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

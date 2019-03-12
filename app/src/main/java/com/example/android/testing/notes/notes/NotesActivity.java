@@ -116,17 +116,17 @@ public class NotesActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                // Open the navigation drawer when the home icon is selected from the toolbar.
-                drawerLayout.openDrawer(GravityCompat.START);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+    // @Override
+    // public boolean onOptionsItemSelected(MenuItem item) {
+    //     final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+    //     switch (item.getItemId()) {
+    //         case android.R.id.home:
+    //             // Open the navigation drawer when the home icon is selected from the toolbar.
+    //             drawerLayout.openDrawer(GravityCompat.START);
+    //             return true;
+    //     }
+    //     return super.onOptionsItemSelected(item);
+    // }
 
     private void setupDrawerContent(NavigationView navigationView) {
         final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
