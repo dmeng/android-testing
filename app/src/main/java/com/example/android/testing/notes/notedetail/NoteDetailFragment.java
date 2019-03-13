@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import androidx.navigation.Navigation;
 import com.example.android.testing.notes.Event;
 import com.example.android.testing.notes.R;
+import com.example.android.testing.notes.addeditnote.AddEditNoteFragment;
 import com.example.android.testing.notes.databinding.NoteDetailFragmentBinding;
 import com.example.android.testing.notes.notes.NotesActivity;
 import com.example.android.testing.notes.notes.NotesViewModel;
@@ -79,7 +80,9 @@ public class NoteDetailFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 mViewModel.editNote();
-                Navigation.findNavController(v).navigate(R.id.action_edit_note, new Bundle() /* args for which note we're actually editing lol */);
+                Bundle bundle = new Bundle();
+                bundle.putString(AddEditNoteFragment.ARGUMENT_EDIT_NOTE_ID, getArguments().getString(ARGUMENT_NOTE_ID));
+                Navigation.findNavController(v).navigate(R.id.action_edit_note, bundle);
             }
         });
         setHasOptionsMenu(true);
