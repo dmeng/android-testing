@@ -20,11 +20,14 @@
         android:label="notes_fragment"
         tools:layout="@layout/notes_fragment">
         <action
+            android:id="@+id/main_to_statistics_page"
+            app:destination="@id/view_stats"/>
+        <action
             android:id="@+id/action_add_note"
             app:destination="@id/add_edit_note"/>
         <action
-            android:id="@+id/main_to_statistics_page"
-            app:destination="@id/view_stats"/>
+            android:id="@+id/action_view_note"
+            app:destination="@id/note_details"/>
     </fragment>
     <fragment
         android:id="@+id/note_details"

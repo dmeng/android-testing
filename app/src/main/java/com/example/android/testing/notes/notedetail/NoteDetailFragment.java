@@ -79,7 +79,7 @@ public class NoteDetailFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 mViewModel.editNote();
-                Navigation.findNavController(v).navigate(R.id.action_edit_note);
+                Navigation.findNavController(v).navigate(R.id.action_edit_note, new Bundle() /* args for which note we're actually editing lol */);
             }
         });
         setHasOptionsMenu(true);

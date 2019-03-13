@@ -17,6 +17,7 @@
 package com.example.android.testing.notes.notes;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,7 @@ import com.example.android.testing.notes.R;
 import com.example.android.testing.notes.data.Note;
 import com.example.android.testing.notes.databinding.NoteItemBinding;
 
+import com.example.android.testing.notes.notedetail.NoteDetailFragment;
 import java.util.List;
 
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> {
@@ -105,8 +107,9 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
 
         @Override
         public void onClick(View v) {
-            notesViewModel.openNote(mNotes.get(getAdapterPosition()).getId());
-            Navigation.findNavController(v).navigate(R.id.action_edit_note);
+            Bundle bundle = new Bundle();
+            bundle.putString(NoteDetailFragment.ARGUMENT_NOTE_ID, mNotes.get(getAdapterPosition()).getId());
+            Navigation.findNavController(v).navigate(R.id.action_view_note, bundle /* arg for which note's details we're viewing */);
         }
     }
 }
