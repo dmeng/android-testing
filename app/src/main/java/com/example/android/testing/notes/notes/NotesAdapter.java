@@ -31,7 +31,6 @@ import com.example.android.testing.notes.R;
 import com.example.android.testing.notes.data.Note;
 import com.example.android.testing.notes.databinding.NoteItemBinding;
 
-import com.example.android.testing.notes.notedetail.NoteDetailFragment;
 import java.util.List;
 
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> {
