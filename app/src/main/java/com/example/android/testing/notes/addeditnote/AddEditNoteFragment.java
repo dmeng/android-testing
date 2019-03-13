@@ -60,8 +60,9 @@ public class AddEditNoteFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         mAddEditNoteFragmentBinding = AddEditNoteFragmentBinding.inflate(inflater, container, false);
-        mAddEditNoteFragmentBinding.setLifecycleOwner(getActivity());
         mViewModel = NotesActivity.obtainViewModel(getActivity(), AddEditNoteViewModel.class);
+        mAddEditNoteFragmentBinding.setLifecycleOwner(getActivity());
+        mAddEditNoteFragmentBinding.setViewModel(mViewModel);
 
         View v = mAddEditNoteFragmentBinding.getRoot();
         FloatingActionButton fab = v.findViewById(R.id.fab_save_note);

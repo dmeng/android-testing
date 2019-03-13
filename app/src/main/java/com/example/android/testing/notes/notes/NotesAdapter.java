@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.android.testing.notes.R;
@@ -105,6 +106,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
         @Override
         public void onClick(View v) {
             notesViewModel.openNote(mNotes.get(getAdapterPosition()).getId());
+            Navigation.findNavController(v).navigate(R.id.action_edit_note);
         }
     }
 }
