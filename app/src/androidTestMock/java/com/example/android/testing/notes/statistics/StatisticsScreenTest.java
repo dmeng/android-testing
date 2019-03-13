@@ -47,63 +47,63 @@ import static org.hamcrest.Matchers.containsString;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class StatisticsScreenTest {
-
-    /**
-     * {@link ActivityTestRule} is a JUnit {@link Rule @Rule} to launch your activity under test.
-     *
-     * <p>
-     * Rules are interceptors which are executed for each test method and are important building
-     * blocks of Junit tests.
-     */
-    @Rule
-    public ActivityTestRule<StatisticsActivity> mStatisticsActivityTestRule =
-            new ActivityTestRule<>(StatisticsActivity.class, false, false);
-
-    @Before
-    public void prepareRepository() throws Throwable {
-        mStatisticsActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                NotesRepository repo = Injection.provideNotesRepository();
-                repo.deleteAllNotes();
-                repo.saveNote(new Note("St1", "", false));
-                repo.saveNote(new Note("St2", "", true));
-            }
-        });
-
-        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
-                StatisticsActivity.class);
-
-        mStatisticsActivityTestRule.launchActivity(intent);
-    }
-
-    /**
-     * Prepare your test fixture for this test. In this case we register an IdlingResources with
-     * Espresso. IdlingResource resource is a great way to tell Espresso when your app is in an
-     * idle state. This helps Espresso to synchronize your test actions, which makes tests
-     * significantly more reliable.
-     */
-    @Before
-    public void registerIdlingResource() {
-        IdlingRegistry.getInstance().register(EspressoIdlingResource.getIdlingResource());
-    }
-
-    /**
-     * Unregister your Idling Resource so it can be garbage collected and does not leak any memory.
-     */
-    @After
-    public void unregisterIdlingResource() {
-        IdlingRegistry.getInstance().unregister(EspressoIdlingResource.getIdlingResource());
-    }
-
-    @Test
-    public void notes_ShowsNonEmptyMessage() {
-        // Check that the active and archived notes text is displayed
-        String expectedActiveNoteText = String.format(ApplicationProvider.getApplicationContext()
-                .getString(R.string.statistics_active_notes), 1);
-        onView(withText(containsString(expectedActiveNoteText))).check(matches(isDisplayed()));
-        String expectedArchivedNoteText = String.format(ApplicationProvider.getApplicationContext()
-                .getString(R.string.statistics_archived_notes), 1);
-        onView(withText(containsString(expectedArchivedNoteText))).check(matches(isDisplayed()));
-    }
+    //
+    // /**
+    //  * {@link ActivityTestRule} is a JUnit {@link Rule @Rule} to launch your activity under test.
+    //  *
+    //  * <p>
+    //  * Rules are interceptors which are executed for each test method and are important building
+    //  * blocks of Junit tests.
+    //  */
+    // @Rule
+    // public ActivityTestRule<StatisticsActivity> mStatisticsActivityTestRule =
+    //         new ActivityTestRule<>(StatisticsActivity.class, false, false);
+    //
+    // @Before
+    // public void prepareRepository() throws Throwable {
+    //     mStatisticsActivityTestRule.runOnUiThread(new Runnable() {
+    //         @Override
+    //         public void run() {
+    //             NotesRepository repo = Injection.provideNotesRepository();
+    //             repo.deleteAllNotes();
+    //             repo.saveNote(new Note("St1", "", false));
+    //             repo.saveNote(new Note("St2", "", true));
+    //         }
+    //     });
+    //
+    //     Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
+    //             StatisticsActivity.class);
+    //
+    //     mStatisticsActivityTestRule.launchActivity(intent);
+    // }
+    //
+    // /**
+    //  * Prepare your test fixture for this test. In this case we register an IdlingResources with
+    //  * Espresso. IdlingResource resource is a great way to tell Espresso when your app is in an
+    //  * idle state. This helps Espresso to synchronize your test actions, which makes tests
+    //  * significantly more reliable.
+    //  */
+    // @Before
+    // public void registerIdlingResource() {
+    //     IdlingRegistry.getInstance().register(EspressoIdlingResource.getIdlingResource());
+    // }
+    //
+    // /**
+    //  * Unregister your Idling Resource so it can be garbage collected and does not leak any memory.
+    //  */
+    // @After
+    // public void unregisterIdlingResource() {
+    //     IdlingRegistry.getInstance().unregister(EspressoIdlingResource.getIdlingResource());
+    // }
+    //
+    // @Test
+    // public void notes_ShowsNonEmptyMessage() {
+    //     // Check that the active and archived notes text is displayed
+    //     String expectedActiveNoteText = String.format(ApplicationProvider.getApplicationContext()
+    //             .getString(R.string.statistics_active_notes), 1);
+    //     onView(withText(containsString(expectedActiveNoteText))).check(matches(isDisplayed()));
+    //     String expectedArchivedNoteText = String.format(ApplicationProvider.getApplicationContext()
+    //             .getString(R.string.statistics_archived_notes), 1);
+    //     onView(withText(containsString(expectedArchivedNoteText))).check(matches(isDisplayed()));
+    // }
 }

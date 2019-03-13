@@ -26,6 +26,7 @@ import androidx.navigation.Navigation;
 import com.example.android.testing.notes.Event;
 import com.example.android.testing.notes.R;
 import com.example.android.testing.notes.databinding.AddEditNoteFragmentBinding;
+import com.example.android.testing.notes.notes.NotesActivity;
 import com.example.android.testing.notes.util.SnackbarUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -40,102 +41,59 @@ import androidx.lifecycle.Observer;
  */
 public class AddEditNoteFragment extends Fragment {
     public static final String ARGUMENT_EDIT_NOTE_ID = "EDIT_NOTE_ID";
-    //
-    // private AddEditNoteViewModel mViewModel;
-    //
-    // private AddEditNoteFragmentBinding mAddEditNoteFragmentBinding;
-    //
-    // public static AddEditNoteFragment newInstance() {
-    //     return new AddEditNoteFragment();
-    // }
-    //
-    // public AddEditNoteFragment() {
-    //     // Required empty public constructor
-    // }
-    //
-    // @Override
-    // public void onActivityCreated(Bundle savedInstanceState) {
-    //     super.onActivityCreated(savedInstanceState);
-    //
-    //     setupFab();
-    //
-    //     setupSnackbar();
-    //
-    //     setupActionBar();
-    //
-    //     loadData();
-    // }
-    //
-    // private void loadData() {
-    //     // Add or edit an existing note?
-    //     if (getArguments() != null) {
-    //         mViewModel.start(getArguments().getString(ARGUMENT_EDIT_NOTE_ID));
-    //     } else {
-    //         mViewModel.start(null);
-    //     }
-    // }
-    //
+
+    private AddEditNoteViewModel mViewModel;
+
+    private AddEditNoteFragmentBinding mAddEditNoteFragmentBinding;
+
+    private void loadData() {
+        // Add or edit an existing note?
+        if (getArguments() != null) {
+            mViewModel.start(getArguments().getString(ARGUMENT_EDIT_NOTE_ID));
+        } else {
+            mViewModel.start(null);
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-      AddEditNoteFragmentBinding binding = AddEditNoteFragmentBinding.inflate(inflater, container, false);
-      binding.setLifecycleOwner(getActivity());
+        mAddEditNoteFragmentBinding = AddEditNoteFragmentBinding.inflate(inflater, container, false);
+        mAddEditNoteFragmentBinding.setLifecycleOwner(getActivity());
+        mViewModel = NotesActivity.obtainViewModel(getActivity(), AddEditNoteViewModel.class);
 
-      View v = binding.getRoot();
-      FloatingActionButton fab = v.findViewById(R.id.fab_save_note);
-      fab.setImageResource(R.drawable.ic_done);
-      fab.setOnClickListener(new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          Navigation.findNavController(v).navigate(R.id.save_and_return);
-        }
-      });
+        View v = mAddEditNoteFragmentBinding.getRoot();
+        FloatingActionButton fab = v.findViewById(R.id.fab_save_note);
+        fab.setImageResource(R.drawable.ic_done);
+        fab.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mViewModel.saveNote();
+                Navigation.findNavController(v).navigate(R.id.action_save_and_return);
+            }
+        });
 
-      setupActionBar();
-      setHasOptionsMenu(true);
-      setRetainInstance(false);
-      return v;
-
-        // final View root = inflater.inflate(R.layout.add_edit_note_fragment, container, false);
-        // if (mAddEditNoteFragmentBinding == null) {
-        //     mAddEditNoteFragmentBinding = AddEditNoteFragmentBinding.bind(root);
-        // }
-        //
-        // mViewModel = AddEditNoteActivity.obtainViewModel(getActivity());
-        //
-        // mAddEditNoteFragmentBinding.setViewModel(mViewModel);
-        // mAddEditNoteFragmentBinding.setLifecycleOwner(getActivity());
-        //
-        // setHasOptionsMenu(true);
-        // setRetainInstance(false);
-        //
-        // return mAddEditNoteFragmentBinding.getRoot();
+        setupActionBar();
+        setupSnackbar();
+        setHasOptionsMenu(true);
+        setRetainInstance(false);
+        loadData();
+        return v;
     }
-    //
-    // private void setupSnackbar() {
-    //     mViewModel.getSnackbarMessage().observe(this, new Observer<Event<Integer>>() {
-    //         @Override
-    //         public void onChanged(Event<Integer> event) {
-    //             Integer msg = event.getContentIfNotHandled();
-    //             if (msg != null) {
-    //                 SnackbarUtils.showSnackbar(getView(), getString(msg));
-    //             }
-    //         }
-    //     });
-    // }
-    //
-    // private void setupFab() {
-    //     FloatingActionButton fab = getActivity().findViewById(R.id.fab_save_note);
-    //     fab.setImageResource(R.drawable.ic_done);
-    //     fab.setOnClickListener(new View.OnClickListener() {
-    //         @Override
-    //         public void onClick(View v) {
-    //             mViewModel.saveNote();
-    //         }
-    //     });
-    // }
-    //
+
+    private void setupSnackbar() {
+        mViewModel.getSnackbarMessage().observe(this, new Observer<Event<Integer>>() {
+            @Override
+            public void onChanged(Event<Integer> event) {
+                Integer msg = event.getContentIfNotHandled();
+                if (msg != null) {
+                    SnackbarUtils.showSnackbar(getView(), getString(msg));
+                }
+            }
+        });
+    }
+
     private void setupActionBar() {
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         if (actionBar == null) {

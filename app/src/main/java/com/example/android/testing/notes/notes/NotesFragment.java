@@ -69,7 +69,7 @@ public class NotesFragment extends Fragment {
         fab.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Navigation.findNavController(v).navigate(R.id.add_edit_note_action);
+                Navigation.findNavController(v).navigate(R.id.action_add_note);
             }
         });
 
