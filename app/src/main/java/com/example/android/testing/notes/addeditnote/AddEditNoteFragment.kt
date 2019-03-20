@@ -59,7 +59,7 @@ class AddEditNoteFragment : Fragment() {
   }
 
   private fun setupSnackBar() {
-    (viewDataBinding.viewModel as AddEditNoteViewModel).snackbarMessage
+    (viewDataBinding.viewModel as AddEditNoteViewModel).getSnackbarText()
         .observe(activity as AppCompatActivity, Observer {
           val msg = it.contentIfNotHandled
           if (msg != null) SnackbarUtils.showSnackbar(view, getString(msg))

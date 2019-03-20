@@ -19,7 +19,6 @@ package com.example.android.testing.notes;
 import android.annotation.SuppressLint;
 import android.app.Application;
 
-import com.example.android.testing.notes.addeditnote.AddEditNoteViewModel;
 import com.example.android.testing.notes.data.NotesRepository;
 import com.example.android.testing.notes.notedetail.NoteDetailViewModel;
 import com.example.android.testing.notes.notes.NotesViewModel;
